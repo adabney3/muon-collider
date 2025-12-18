@@ -61,30 +61,9 @@ def read_outx_file(filename):
         traceback.print_exc()
         return None
 
-# Load your data
 df = read_outx_file('twiss_IR_v09.outx')
 
-# Display basic information about the data
-if df is not None:
-    print("\n" + "="*60)
-    print("COLUMN NAMES (use these for plotting):")
-    print("="*60)
-    for i, col in enumerate(df.columns):
-        print(f"{i+1}. '{col}'")
-    
-    print("\n" + "="*60)
-    print("First few rows:")
-    print("="*60)
-    print(df.head())
-    
-    print("\n" + "="*60)
-    print("Basic statistics:")
-    print("="*60)
-    print(df.describe())
-
-# Example plotting functions
 def plot_single_column(df, column_name, title=None):
-    """Plot a single column vs index"""
     plt.figure(figsize=(10, 6))
     plt.plot(df.index, df[column_name], marker='o', markersize=3)
     plt.xlabel('Index')
@@ -95,7 +74,6 @@ def plot_single_column(df, column_name, title=None):
     plt.show()
 
 def plot_two_columns(df, x_col, y_col, title=None):
-    """Plot one column vs another"""
     plt.figure(figsize=(10, 6))
     plt.plot(df[x_col], df[y_col], marker='o', markersize=3)
     plt.xlabel(x_col)
@@ -106,7 +84,6 @@ def plot_two_columns(df, x_col, y_col, title=None):
     plt.show()
 
 def plot_multiple_columns(df, x_col, y_cols, title=None):
-    """Plot multiple columns on same axes"""
     plt.figure(figsize=(12, 6))
     for y_col in y_cols:
         plt.plot(df[x_col], df[y_col], marker='o', markersize=3, label=y_col)
@@ -118,7 +95,6 @@ def plot_multiple_columns(df, x_col, y_cols, title=None):
     plt.tight_layout()
     plt.show()
 
-# EXAMPLE USAGE - Uncomment these after checking column names above:
 
 # Plot Beta functions vs S position
 plot_two_columns(df, 'S', 'BETX', 'Beta X vs S Position')
@@ -133,8 +109,6 @@ plot_two_columns(df, 'S', 'DX', 'Horizontal Dispersion vs S')
 # Plot alpha functions
 plot_multiple_columns(df, 'S', ['ALFX', 'ALFY'], 'Alpha Functions vs S')
 
-
-# ADDITIONAL OPERATIONS - Uncomment to use:
 
 # Filter by element type (e.g., only quadrupoles)
 quadrupoles = df[df['KEYWORD'] == 'QUADRUPOLE']
@@ -152,5 +126,4 @@ print(f"Max BETX at: {max_betx_element['NAME']}, S = {max_betx_element['S']}")
 ip_region = df[(df['S'] > 180) & (df['S'] < 185)]
 print(f"Elements near IP: {len(ip_region)}")
 
-# Save processed data to CSV if needed
-df.to_csv('processed_data.csv', index=False)
+
