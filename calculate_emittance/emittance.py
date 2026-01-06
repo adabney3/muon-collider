@@ -7,10 +7,9 @@ import math
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-from beam_size import read_outx_with_headers
+from matplotlib.patches import Ellipse
+from beam_size import read_outx_with_headers, calculate_and_plot_beam_sizes
 from phase_advance import compute_phase_advance
-
-df = read_outx_file('twiss_IR_v09.outx')
 
 def calculate_particle_coordinates(df, params, phi=0, n_particles=100):
     """
@@ -19,12 +18,6 @@ def calculate_particle_coordinates(df, params, phi=0, n_particles=100):
     x(s) = sqrt(epsilon) * sqrt(beta(s)) * cos(psi(s) + phi)
     x'(s) = -sqrt(epsilon) * (alpha(s) * cos(psi(s) + phi) + sin(psi(s) + phi)) / sqrt(beta(s))
     
-    Parameters:
-    -----------
-    df : DataFrame with BETX, ALFX, PSIX columns
-    params : dict with EX (emittance)
-    phi : phase offset (or array of phases for multiple particles)
-    n_particles : number of particles to generate (if phi is scalar)
     """
     epsilon_x = params.get('EX', 0)
     epsilon_y = params.get('EY', 0)
@@ -134,44 +127,10 @@ def plot_emittance_evolution(df, params, filename='twiss_IR_v09.outx'):
                       bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
     
     plt.tight_layout()
-    plt.savefig('emittance_evolution.png', dpi=300)
-    plt.show()
-
-def plot_beam_envelope(df, params):
-    """Plot beam envelope (beam size) vs s"""
-    
-    epsilon_x = params.get('EX', 0)
-    epsilon_y = params.get('EY', 0)
-    
-    # Calculate beam sizes (1-sigma)
-    sigma_x = np.sqrt(epsilon_x * df['BETX']) * 1e3  # mm
-    sigma_y = np.sqrt(epsilon_y * df['BETY']) * 1e3  # mm
-    
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8), sharex=True)
-    
-    # Horizontal envelope
-    ax1.fill_between(df['S'], -sigma_x, sigma_x, alpha=0.3, color='blue')
-    ax1.plot(df['S'], sigma_x, 'b-', label='σ_x')
-    ax1.plot(df['S'], -sigma_x, 'b-')
-    ax1.set_ylabel('x [mm]')
-    ax1.set_title('Horizontal Beam Envelope')
-    ax1.grid(True, alpha=0.3)
-    ax1.legend()
-    
-    # Vertical envelope
-    ax2.fill_between(df['S'], -sigma_y, sigma_y, alpha=0.3, color='red')
-    ax2.plot(df['S'], sigma_y, 'r-', label='σ_y')
-    ax2.plot(df['S'], -sigma_y, 'r-')
-    ax2.set_xlabel('s [m]')
-    ax2.set_ylabel('y [mm]')
-    ax2.set_title('Vertical Beam Envelope')
-    ax2.grid(True, alpha=0.3)
-    ax2.legend()
-    
-    plt.tight_layout()
     plt.show()
 
 def plot_phase_space_at_location(df, params, s_location=None, element_name=None):
+    """Plot phase space at a specific location"""
     
     if element_name:
         row = df[df['NAME'] == element_name].iloc[0]
@@ -229,11 +188,9 @@ if __name__ == "__main__":
     print(f"  Energy: {params.get('ENERGY', 'N/A')} GeV")
     print(f"  Horizontal emittance (EX): {params.get('EX', 0)*1e6:.6f} μm")
     print(f"  Vertical emittance (EY): {params.get('EY', 0)*1e6:.6f} μm")
-    
+
     df = compute_phase_advance(df)
-    
+
     plot_emittance_evolution(df, params, filename)
-    
-    plot_beam_envelope(df, params)
-    
+
     plot_phase_space_at_location(df, params, element_name='IP1')

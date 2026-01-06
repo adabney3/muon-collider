@@ -92,7 +92,11 @@ def read_outx_with_headers(filename):
 # Read the file with headers
 params, df = read_outx_with_headers('twiss_IR_v09.outx')
 
-if df is not None:
+def calculate_and_plot_beam_sizes(params, df, plot=True):
+    """
+    Calculate beam sizes from Twiss parameters and optionally plot them.
+    Beam size σ = sqrt(β * ε)
+    """
     # Get parameters from header
     gamma = params['GAMMA']
     ex = params['EX']
@@ -131,9 +135,16 @@ if df is not None:
     min_x_idx = df['SIGMA_X'].idxmin()
     min_y_idx = df['SIGMA_Y'].idxmin()
     
-    plot_two_columns(df, 'S', 'SIGMA_X_UM', title='Horizontal Beam Size σₓ [μm] vs S [m]')
+    print(f"\nMinimum horizontal beam size: {df.loc[min_x_idx, 'SIGMA_X_UM']:.2f} μm at s = {df.loc[min_x_idx, 'S']:.2f} m ({df.loc[min_x_idx, 'NAME']})")
+    print(f"Minimum vertical beam size: {df.loc[min_y_idx, 'SIGMA_Y_UM']:.2f} μm at s = {df.loc[min_y_idx, 'S']:.2f} m ({df.loc[min_y_idx, 'NAME']})")
     
-    plot_two_columns(df, 'S', 'SIGMA_Y_UM', title='Vertical Beam Size σᵧ [μm] vs S [m]')
+    if plot:
+        plot_two_columns(df, 'S', 'SIGMA_X_UM', title='Horizontal Beam Size σₓ [μm] vs S [m]')
+        plot_two_columns(df, 'S', 'SIGMA_Y_UM', title='Vertical Beam Size σᵧ [μm] vs S [m]')
+        plot_multiple_columns(df, 'S', ['SIGMA_X_UM', 'SIGMA_Y_UM'], 
+                              title='Beam Sizes along IR1')
     
-    plot_multiple_columns(df, 'S', ['SIGMA_X_UM', 'SIGMA_Y_UM'], 
-                          title='Beam Sizes along IR1')
+    return df
+
+if df is not None:
+    df = calculate_and_plot_beam_sizes(params, df, plot=True)
