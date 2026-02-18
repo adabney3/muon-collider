@@ -42,9 +42,9 @@ x = df['X']
 y = df['Y']
 epsilon = 0.00000000052830000  #emmittance (EX) found in header of file
 
-theta = np.linspace(0, 2 * np.pi, 500)
+theta   = np.linspace(0, 2 * np.pi, 500)
 x       =  np.sqrt(epsilon * beta) * np.cos(theta)
-x_prime = -np.sqrt(epsilon * gamma) * np.sin(theta) - (alpha / np.sqrt(beta)) * np.sqrt(epsilon) * np.cos(theta)
+x_prime = -np.sqrt(epsilon / beta) * (alpha * np.cos(theta) + np.sin(theta))
 
 plt.figure(figsize=(8, 6))
 plt.plot(x, x_prime, 'b-', linewidth=2)
